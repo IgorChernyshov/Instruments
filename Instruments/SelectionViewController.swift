@@ -8,9 +8,9 @@
 
 import UIKit
 
-class SelectionViewController: UITableViewController {
+final class SelectionViewController: UITableViewController {
+
 	var items = [String]() // this is the array that will store the filenames to load
-	var viewControllers = [UIViewController]() // create a cache of the detail view controllers for faster loading
 	var dirty = false
 
     override func viewDidLoad() {
@@ -74,10 +74,8 @@ class SelectionViewController: UITableViewController {
 
 			original.draw(in: renderRect)
 		}
-
 		cell.imageView?.image = rounded
 
-		// give the images a nice shadow to make them look a bit more dramatic
 		cell.imageView?.layer.shadowColor = UIColor.black.cgColor
 		cell.imageView?.layer.shadowOpacity = 1
 		cell.imageView?.layer.shadowRadius = 10
@@ -99,8 +97,6 @@ class SelectionViewController: UITableViewController {
 		// mark us as not needing a counter reload when we return
 		dirty = false
 
-		// add to our view controller cache and show
-		viewControllers.append(vc)
 		navigationController!.pushViewController(vc, animated: true)
 	}
 }
