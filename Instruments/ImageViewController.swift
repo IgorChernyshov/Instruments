@@ -11,11 +11,11 @@ import UIKit
 final class ImageViewController: UIViewController {
 
 	// MARK: - Properties
-	weak var owner: SelectionViewController!
-	var image: String!
+	weak var owner: SelectionViewController?
+	var image: String?
 
-	private var imageView: UIImageView!
-	private var animationTimer: Timer!
+	private var imageView: UIImageView?
+	private var animationTimer: Timer?
 
 	// MARK: - Lifecycle
 	override func loadView() {
@@ -24,18 +24,19 @@ final class ImageViewController: UIViewController {
 		view.backgroundColor = UIColor.black
 
 		// create an image view that fills the screen
-		imageView = UIImageView()
-		imageView.contentMode = .scaleAspectFit
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.alpha = 0
+		let newImageView = UIImageView()
+		imageView = newImageView
+		imageView?.contentMode = .scaleAspectFit
+		imageView?.translatesAutoresizingMaskIntoConstraints = false
+		imageView?.alpha = 0
 
-		view.addSubview(imageView)
+		view.addSubview(newImageView)
 
 		// make the image view fill the screen
-		imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-		imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-		imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-		imageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+		imageView?.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+		imageView?.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+		imageView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+		imageView?.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
 
 		// schedule an animation that does something vaguely interesting
 		animationTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak imageView] timer in
@@ -51,9 +52,12 @@ final class ImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-		title = image.replacingOccurrences(of: "-Large.jpg", with: "")
-		let path = Bundle.main.path(forResource: image, ofType: nil)!
-		let original = UIImage(contentsOfFile: path)!
+		title = image?.replacingOccurrences(of: "-Large.jpg", with: "")
+		guard let path = Bundle.main.path(forResource: image, ofType: nil),
+			  let original = UIImage(contentsOfFile: path) else {
+			assertionFailure("Can't load image")
+			return
+		}
 
 		let renderer = UIGraphicsImageRenderer(size: original.size)
 
@@ -64,33 +68,33 @@ final class ImageViewController: UIViewController {
 			original.draw(at: CGPoint.zero)
 		}
 
-		imageView.image = rounded
+		imageView?.image = rounded
     }
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 
-		imageView.alpha = 0
+		imageView?.alpha = 0
 
 		UIView.animate(withDuration: 3) { [unowned self] in
-			self.imageView.alpha = 1
+			self.imageView?.alpha = 1
 		}
 	}
 
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-		animationTimer.invalidate()
+		animationTimer?.invalidate()
 	}
 
 	// MARK: - Handle Touches
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let defaults = UserDefaults.standard
-		var currentVal = defaults.integer(forKey: image)
+		var currentVal = defaults.integer(forKey: image ?? "")
 		currentVal += 1
 
-		defaults.set(currentVal, forKey:image)
+		defaults.set(currentVal, forKey:image ?? "")
 
 		// tell the parent view controller that it should refresh its table counters when we go back
-		owner.dirty = true
+		owner?.dirty = true
 	}
 }
